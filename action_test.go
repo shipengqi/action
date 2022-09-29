@@ -155,3 +155,46 @@ func TestActionExecuteContext(t *testing.T) {
 	err := act.ExecuteContext(ctx)
 	assert.EqualError(t, err, "done")
 }
+
+func TestActionExecute(t *testing.T) {
+	t.Run("ignore action without Run", func(t *testing.T) {
+		act := getRootAction(t)
+		assert.Nil(t, act.Execute())
+	})
+
+	t.Run("returns error in PreRun", func(t *testing.T) {
+		act := getRootAction(t)
+		act.PreRun = func(act *Action) error {
+			return errors.New("PreRun error")
+		}
+		err := act.Execute()
+		assert.EqualError(t, err, "PreRun error")
+	})
+
+	t.Run("returns error in PostRun", func(t *testing.T) {
+		act := getRootAction(t)
+		act.PostRun = func(act *Action) error {
+			return errors.New("PostRun error")
+		}
+		err := act.Execute()
+		assert.EqualError(t, err, "PostRun error")
+	})
+
+	t.Run("returns error in PersistentPreRun", func(t *testing.T) {
+		act := getRootAction(t)
+		act.PersistentPreRun = func(act *Action) error {
+			return errors.New("PersistentPreRun error")
+		}
+		err := act.Execute()
+		assert.EqualError(t, err, "PersistentPreRun error")
+	})
+
+	t.Run("returns error in PersistentPostRun", func(t *testing.T) {
+		act := getRootAction(t)
+		act.PersistentPostRun = func(act *Action) error {
+			return errors.New("PersistentPostRun error")
+		}
+		err := act.Execute()
+		assert.EqualError(t, err, "PersistentPostRun error")
+	})
+}

@@ -52,8 +52,8 @@ func newSubAction2() *action.Action {
 }
 ```
 
-`Executable`: whether is an executable action.
-`Execute` will find the first executable action of the root action and execute it.
+- `Executable`: whether is an executable action.
+- `Execute()` will find the first executable action of the root action and execute it.
 
 ## Documentation
 
