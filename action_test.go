@@ -107,34 +107,6 @@ func TestActionRoot(t *testing.T) {
 	assert.Equal(t, act, acts[9].Root())
 }
 
-func TestActionFind(t *testing.T) {
-	t.Run("cannot find target without sub actions", func(t *testing.T) {
-		act := getRootAction(t)
-		err := act.Execute()
-		t.Log(err)
-	})
-
-	t.Run("execute the target action", func(t *testing.T) {
-		act := getRootAction(t)
-		acts := getSubActions(t, _rootActionName, 10)
-		acts[9].Executable = getTargetFunc(true)
-		_ = act.AddAction(acts...)
-		err := act.Execute()
-		t.Log(err)
-	})
-
-	t.Run("execute the multi layers target action", func(t *testing.T) {
-		act := getRootAction(t)
-		acts := getSubActions(t, _rootActionName, 10)
-		subsubs := getSubActions(t, "root-sub-action-10", 10)
-		subsubs[9].Executable = getTargetFunc(true)
-		_ = acts[9].AddAction(subsubs...)
-		_ = act.AddAction(acts...)
-		err := act.Execute()
-		t.Log(err)
-	})
-}
-
 func TestActionExecuteContext(t *testing.T) {
 	act := getRootAction(t)
 	act.Run = func(act *Action) error {
