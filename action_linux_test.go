@@ -1,6 +1,12 @@
 package action
 
-import "github.com/Netflix/go-expect"
+import (
+	"os"
+	"testing"
+
+	"github.com/Netflix/go-expect"
+	"github.com/stretchr/testify/assert"
+)
 
 type expectConsole interface {
 	ExpectString(string)
