@@ -65,7 +65,6 @@ func TestActionFind(t *testing.T) {
 		console.ExpectString("Run action name: root")
 		console.ExpectString("PostRun action name: root")
 		console.ExpectString("PersistentPostRun action name: root")
-		console.ExpectEOF()
 	})
 
 	t.Run("execute the target action", func(t *testing.T) {
@@ -80,7 +79,6 @@ func TestActionFind(t *testing.T) {
 		console.ExpectString("Run action name: root-sub-action-10")
 		console.ExpectString("PostRun action name: root-sub-action-10")
 		console.ExpectString("PersistentPostRun action name: root-sub-action-10")
-		console.ExpectEOF()
 	})
 
 	t.Run("execute the multi layers target action", func(t *testing.T) {
@@ -97,6 +95,5 @@ func TestActionFind(t *testing.T) {
 		console.ExpectString("Run action name: root-sub-action-10")
 		console.ExpectString("PostRun action name: root-sub-action-10")
 		console.ExpectString("PersistentPostRun action name: root-sub-action-10")
-		console.ExpectEOF()
 	})
 }
