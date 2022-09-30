@@ -57,9 +57,10 @@ func TestActionFind(t *testing.T) {
 	console := &consoleWithErrorHandling{console: c, t: t}
 
 	t.Run("cannot find target without sub actions", func(t *testing.T) {
-		act := getRootAction(t)
-		err := act.Execute()
+		act := getRootAction(c.Tty())
+		err = act.Execute()
 		assert.NoError(t, err)
+
 		console.ExpectString("PersistentPreRun action name: root")
 		console.ExpectString("PreRun action name: root")
 		console.ExpectString("Run action name: root")
@@ -68,11 +69,11 @@ func TestActionFind(t *testing.T) {
 	})
 
 	t.Run("execute the target action", func(t *testing.T) {
-		act := getRootAction(t)
-		acts := getSubActions(t, _rootActionName, 10)
+		act := getRootAction(c.Tty())
+		acts := getSubActions(c.Tty(), _rootActionName, 10)
 		acts[9].Executable = getTargetFunc(true)
 		_ = act.AddAction(acts...)
-		err := act.Execute()
+		err = act.Execute()
 		assert.NoError(t, err)
 		console.ExpectString("PersistentPreRun action name: root-sub-action-10")
 		console.ExpectString("PreRun action name: root-sub-action-10")
@@ -82,18 +83,18 @@ func TestActionFind(t *testing.T) {
 	})
 
 	t.Run("execute the multi layers target action", func(t *testing.T) {
-		act := getRootAction(t)
-		acts := getSubActions(t, _rootActionName, 10)
-		subsubs := getSubActions(t, "root-sub-action-10", 10)
+		act := getRootAction(c.Tty())
+		acts := getSubActions(c.Tty(), _rootActionName, 5)
+		subsubs := getSubActions(c.Tty(), "root-sub-action-5", 10)
 		subsubs[9].Executable = getTargetFunc(true)
-		_ = acts[9].AddAction(subsubs...)
+		_ = acts[4].AddAction(subsubs...)
 		_ = act.AddAction(acts...)
-		err := act.Execute()
+		err = act.Execute()
 		assert.NoError(t, err)
-		console.ExpectString("PersistentPreRun action name: root-sub-action-10")
-		console.ExpectString("PreRun action name: root-sub-action-10")
-		console.ExpectString("Run action name: root-sub-action-10")
-		console.ExpectString("PostRun action name: root-sub-action-10")
-		console.ExpectString("PersistentPostRun action name: root-sub-action-10")
+		console.ExpectString("PersistentPreRun action name: root-sub-action-5-sub-action-10")
+		console.ExpectString("PreRun action name: root-sub-action-5-sub-action-10")
+		console.ExpectString("Run action name: root-sub-action-5-sub-action-10")
+		console.ExpectString("PostRun action name: root-sub-action-5-sub-action-10")
+		console.ExpectString("PersistentPostRun action name: root-sub-action-5-sub-action-10")
 	})
 }
