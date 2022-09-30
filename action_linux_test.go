@@ -1,5 +1,7 @@
 package action
 
+import "github.com/Netflix/go-expect"
+
 type expectConsole interface {
 	ExpectString(string)
 	ExpectEOF()
