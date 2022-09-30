@@ -14,7 +14,7 @@ const _rootActionName = "root"
 
 func getTestHookFunc(t *testing.T, name string) func(act *Action) error {
 	return func(act *Action) error {
-		t.Logf("%s action name: %s", name, act.Name)
+		fmt.Printf("%s action name: %s\n", name, act.Name)
 		return nil
 	}
 }
