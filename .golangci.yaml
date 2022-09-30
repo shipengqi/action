@@ -862,8 +862,8 @@ linters:
     - predeclared
     - promlinter
     - revive
-    - rowserrcheck
-    - sqlclosecheck
+    #- rowserrcheck # disabled, because of generics. https://github.com/golangci/golangci-lint/issues/2649
+    #- sqlclosecheck # disabled, because of generics. https://github.com/golangci/golangci-lint/issues/2649
     - staticcheck
     #- structcheck # deprecated, replaced by unused
     - stylecheck
@@ -873,7 +873,7 @@ linters:
     - unparam
     - unused
     #- varcheck # deprecated, replaced by unused
-    - wastedassign
+    #- wastedassign #disabled because of generics. https://github.com/golangci/golangci-lint/issues/2649
     - whitespace
     - bidichk
     - gomoddirectives
