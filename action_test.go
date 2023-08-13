@@ -1,10 +1,10 @@
 package action
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"testing"
 	"time"
 
@@ -13,9 +13,9 @@ import (
 
 const _rootActionName = "root"
 
-func getTestHookFunc(tty *os.File, name string) func(act *Action) error {
+func getTestHookFunc(buf *bytes.Buffer, name string) func(act *Action) error {
 	return func(act *Action) error {
-		_, _ = fmt.Fprintf(tty, "%s action name: %s\n", name, act.Name)
+		_, _ = fmt.Fprintf(buf, "%s action name: %s\n", name, act.Name)
 		return nil
 	}
 }
@@ -26,19 +26,19 @@ func getTargetFunc(istarget bool) func(act *Action) bool {
 	}
 }
 
-func getRootAction(tty *os.File) *Action {
+func getRootAction(buf *bytes.Buffer) *Action {
 	return &Action{
 		Name:              "root",
-		PersistentPreRun:  getTestHookFunc(tty, "PersistentPreRun"),
-		PreRun:            getTestHookFunc(tty, "PreRun"),
-		Run:               getTestHookFunc(tty, "Run"),
-		PostRun:           getTestHookFunc(tty, "PostRun"),
-		PersistentPostRun: getTestHookFunc(tty, "PersistentPostRun"),
+		PersistentPreRun:  getTestHookFunc(buf, "PersistentPreRun"),
+		PreRun:            getTestHookFunc(buf, "PreRun"),
+		Run:               getTestHookFunc(buf, "Run"),
+		PostRun:           getTestHookFunc(buf, "PostRun"),
+		PersistentPostRun: getTestHookFunc(buf, "PersistentPostRun"),
 		Executable:        getTargetFunc(false),
 	}
 }
 
-func getSubActions(tty *os.File, parent string, count int) []*Action {
+func getSubActions(buf *bytes.Buffer, parent string, count int) []*Action {
 	if count < 1 {
 		return nil
 	}
@@ -46,11 +46,11 @@ func getSubActions(tty *os.File, parent string, count int) []*Action {
 	for i := 0; i < count; i++ {
 		actions = append(actions, &Action{
 			Name:              fmt.Sprintf("%s-sub-action-%d", parent, i+1),
-			PersistentPreRun:  getTestHookFunc(tty, "PersistentPreRun"),
-			PreRun:            getTestHookFunc(tty, "PreRun"),
-			Run:               getTestHookFunc(tty, "Run"),
-			PostRun:           getTestHookFunc(tty, "PostRun"),
-			PersistentPostRun: getTestHookFunc(tty, "PersistentPostRun"),
+			PersistentPreRun:  getTestHookFunc(buf, "PersistentPreRun"),
+			PreRun:            getTestHookFunc(buf, "PreRun"),
+			Run:               getTestHookFunc(buf, "Run"),
+			PostRun:           getTestHookFunc(buf, "PostRun"),
+			PersistentPostRun: getTestHookFunc(buf, "PersistentPostRun"),
 			Executable:        getTargetFunc(false),
 		})
 	}
@@ -58,7 +58,8 @@ func getSubActions(tty *os.File, parent string, count int) []*Action {
 }
 
 func TestActionRunnable(t *testing.T) {
-	act := getRootAction(os.Stdout)
+	var buf bytes.Buffer
+	act := getRootAction(&buf)
 	assert.True(t, act.Runnable())
 	act.Run = nil
 	assert.False(t, act.Runnable())
@@ -66,13 +67,15 @@ func TestActionRunnable(t *testing.T) {
 
 func TestActionAddAction(t *testing.T) {
 	t.Run("successfully add 5 actions", func(t *testing.T) {
-		act := getRootAction(os.Stdout)
-		acts := getSubActions(os.Stdout, _rootActionName, 5)
+		var buf bytes.Buffer
+		act := getRootAction(&buf)
+		acts := getSubActions(&buf, _rootActionName, 5)
 		_ = act.AddAction(acts...)
 		assert.Equal(t, 5, len(act.Actions()))
 	})
 	t.Run("doesn't accept self as sub action", func(t *testing.T) {
-		act := getRootAction(os.Stdout)
+		var buf bytes.Buffer
+		act := getRootAction(&buf)
 		err := act.AddAction(act)
 		assert.EqualError(t, err, "action can't be a child of itself")
 	})
@@ -80,8 +83,9 @@ func TestActionAddAction(t *testing.T) {
 
 func TestActionParent(t *testing.T) {
 	t.Run("should returns parent action", func(t *testing.T) {
-		act := getRootAction(os.Stdout)
-		acts := getSubActions(os.Stdout, _rootActionName, 1)
+		var buf bytes.Buffer
+		act := getRootAction(&buf)
+		acts := getSubActions(&buf, _rootActionName, 1)
 		_ = act.AddAction(acts...)
 		assert.False(t, act.HasParent())
 		assert.True(t, act.HasSubActions())
@@ -91,8 +95,9 @@ func TestActionParent(t *testing.T) {
 }
 
 func TestActionRemove(t *testing.T) {
-	act := getRootAction(os.Stdout)
-	acts := getSubActions(os.Stdout, _rootActionName, 10)
+	var buf bytes.Buffer
+	act := getRootAction(&buf)
+	acts := getSubActions(&buf, _rootActionName, 10)
 	_ = act.AddAction(acts...)
 	acts[9].Executable = getTargetFunc(true)
 	assert.Equal(t, acts[9], act.Find())
@@ -101,15 +106,17 @@ func TestActionRemove(t *testing.T) {
 }
 
 func TestActionRoot(t *testing.T) {
-	act := getRootAction(os.Stdout)
-	acts := getSubActions(os.Stdout, _rootActionName, 10)
+	var buf bytes.Buffer
+	act := getRootAction(&buf)
+	acts := getSubActions(&buf, _rootActionName, 10)
 	_ = act.AddAction(acts...)
 	assert.Equal(t, act, act)
 	assert.Equal(t, act, acts[9].Root())
 }
 
 func TestActionExecuteContext(t *testing.T) {
-	act := getRootAction(os.Stdout)
+	var buf bytes.Buffer
+	act := getRootAction(&buf)
 	act.Run = func(act *Action) error {
 		for {
 			select {
@@ -131,12 +138,14 @@ func TestActionExecuteContext(t *testing.T) {
 
 func TestActionExecute(t *testing.T) {
 	t.Run("ignore action without Run", func(t *testing.T) {
-		act := getRootAction(os.Stdout)
+		var buf bytes.Buffer
+		act := getRootAction(&buf)
 		assert.Nil(t, act.Execute())
 	})
 
 	t.Run("returns error in PreRun", func(t *testing.T) {
-		act := getRootAction(os.Stdout)
+		var buf bytes.Buffer
+		act := getRootAction(&buf)
 		act.PreRun = func(act *Action) error {
 			return errors.New("PreRun error")
 		}
@@ -145,7 +154,8 @@ func TestActionExecute(t *testing.T) {
 	})
 
 	t.Run("returns error in PostRun", func(t *testing.T) {
-		act := getRootAction(os.Stdout)
+		var buf bytes.Buffer
+		act := getRootAction(&buf)
 		act.PostRun = func(act *Action) error {
 			return errors.New("PostRun error")
 		}
@@ -154,7 +164,8 @@ func TestActionExecute(t *testing.T) {
 	})
 
 	t.Run("returns error in PersistentPreRun", func(t *testing.T) {
-		act := getRootAction(os.Stdout)
+		var buf bytes.Buffer
+		act := getRootAction(&buf)
 		act.PersistentPreRun = func(act *Action) error {
 			return errors.New("PersistentPreRun error")
 		}
@@ -163,7 +174,8 @@ func TestActionExecute(t *testing.T) {
 	})
 
 	t.Run("returns error in PersistentPostRun", func(t *testing.T) {
-		act := getRootAction(os.Stdout)
+		var buf bytes.Buffer
+		act := getRootAction(&buf)
 		act.PersistentPostRun = func(act *Action) error {
 			return errors.New("PersistentPostRun error")
 		}
