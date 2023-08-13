@@ -3,7 +3,7 @@
 Inspired by [Cobra](https://github.com/spf13/cobra). Cobra is a library for creating powerful modern CLI applications.
 "action" can be used to create a more fine-grained behavior of a command.
 
-[![Test Status](https://github.com/shipengqi/action/actions/workflows/go.yml/badge.svg)](https://github.com/shipengqi/action/actions/workflows/go.yml)
+[![Test Status](https://github.com/shipengqi/action/actions/workflows/test.yml/badge.svg)](https://github.com/shipengqi/action/actions/workflows/test.yml)
 [![Codecov](https://codecov.io/gh/shipengqi/action/branch/main/graph/badge.svg?token=SMU4SI304O)](https://codecov.io/gh/shipengqi/action)
 [![Release](https://img.shields.io/github/release/shipengqi/action.svg)](https://github.com/shipengqi/action/releases)
 [![License](https://img.shields.io/github/license/shipengqi/action)](https://github.com/shipengqi/action/blob/main/LICENSE)
