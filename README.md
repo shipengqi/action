@@ -31,10 +31,10 @@ cmd := &cobra.Command{
 
 func newSubAction1() *action.Action {
     return &action.Action{
-        Name: "sub-action1",
-		Executable: func(act *action.Action) bool {
-			// do something
-			return true
+        Name: "sub-action1", 
+        Executable: func(act *action.Action) bool {
+            // do something
+            return true
         },
         Run:  func(act *action.Action) error { return nil },
     }
