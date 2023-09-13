@@ -8,7 +8,7 @@ Inspired by [Cobra](https://github.com/spf13/cobra). Cobra is a library for crea
 [![Release](https://img.shields.io/github/release/shipengqi/action.svg)](https://github.com/shipengqi/action/releases)
 [![License](https://img.shields.io/github/license/shipengqi/action)](https://github.com/shipengqi/action/blob/main/LICENSE)
 
-## Quickstart
+## Getting Started
 
 ```go
 cmd := &cobra.Command{
@@ -53,8 +53,16 @@ func newSubAction2() *action.Action {
 ```
 
 - `Executable`: whether is an executable action.
-- `Execute()` will find the first executable action of the root action and execute it.
+- `action.Execute()` will find the first executable action of the root action and execute it. If no executable action can be found, run the current action.
+
 
 ## Documentation
 
 You can find the docs at [go docs](https://pkg.go.dev/github.com/shipengqi/action).
+
+
+## 🔋 JetBrains OS licenses
+
+`action` had been being developed with **GoLand** under the **free JetBrains Open Source license(s)** granted by JetBrains s.r.o., hence I would like to express my thanks here.
+
+<a href="https://www.jetbrains.com/?from=action" target="_blank"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains Logo (Main) logo." width="250" align="middle"></a>
