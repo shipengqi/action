@@ -27,5 +27,7 @@ linters:
 linters-settings:
   gofmt:
     simplify: true
+  goimports:
+    local-prefixes: github.com/shipengqi/action
   dupl:
     threshold: 600
